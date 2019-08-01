@@ -1,0 +1,15 @@
+server:
+  port: 9090
+
+spring:
+  datasource:
+    jdbc-url: jdbc:sqlserver://118.178.18.23:1433;DatabaseName=ZHHesTest
+    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+    username: test001
+    password: keduyixue001
+
+  rabbitmq:
+    host: 192.168.41.207
+    port: 5672
+    username: intg
+    password: 123456
