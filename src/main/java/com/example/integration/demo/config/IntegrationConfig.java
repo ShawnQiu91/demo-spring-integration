@@ -6,6 +6,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.integration.amqp.dsl.Amqp;
 import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.integration.config.EnableIntegration;
@@ -13,11 +14,13 @@ import org.springframework.integration.core.MessageSource;
 import org.springframework.integration.dsl.IntegrationFlow;
 import org.springframework.integration.dsl.IntegrationFlows;
 import org.springframework.integration.dsl.Pollers;
+import org.springframework.integration.http.dsl.Http;
 import org.springframework.integration.jdbc.JdbcPollingChannelAdapter;
 import org.springframework.messaging.Message;
 
 import javax.sql.DataSource;
 import java.util.List;
+import java.util.Map;
 
 @Configuration
 @EnableIntegration
@@ -50,9 +53,26 @@ public class IntegrationConfig {
      *
      * @return
      */
-    @Bean
+    /*@Bean
     public IntegrationFlow pollingFlow() {
         return IntegrationFlows.from(jdbcMessageSource(), c -> c.poller(Pollers.fixedRate(10000).maxMessagesPerPoll(1)))
+                .channel("equ-channel-input")
+                .get();
+    }*/
+
+    /**
+     * 从网页发起请求，服务器接受后进行数据库查询并将结果发送到equ-channel-input
+     */
+    /**
+     * 配置Http支持
+     * @return
+     */
+    @Bean
+    public IntegrationFlow httpInbound() {
+        return IntegrationFlows.from(Http.inboundGateway("/full-insert")
+                .requestMapping(m -> m.methods(HttpMethod.GET))
+                .requestPayloadType(String.class))
+                .handle("queryEquService", "queryEqu")
                 .channel("equ-channel-input")
                 .get();
     }
@@ -79,10 +99,9 @@ public class IntegrationConfig {
      * @return
      */
     @ServiceActivator(inputChannel = "equ-channel-input", outputChannel = "equ-channel-output")
-    public Message<List<Object>> getDbData(Message<List<Object>> msg) {
+    public Message<List<Map<String,Object>>> getDbData(Message<List<Map<String,Object>>> msg) {
         return new ConvertEquService().getSource(msg).convert();
     }
-
 
 }
 
