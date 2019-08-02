@@ -2,7 +2,6 @@ package com.example.integration.demo.config;
 
 import com.example.integration.demo.service.ConvertEquService;
 import org.springframework.amqp.core.AmqpTemplate;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
@@ -14,20 +13,15 @@ import org.springframework.integration.core.MessageSource;
 import org.springframework.integration.dsl.IntegrationFlow;
 import org.springframework.integration.dsl.IntegrationFlows;
 import org.springframework.integration.dsl.Pollers;
-import org.springframework.integration.dsl.Transformers;
 import org.springframework.integration.jdbc.JdbcPollingChannelAdapter;
 import org.springframework.messaging.Message;
 
 import javax.sql.DataSource;
+import java.util.List;
 
 @Configuration
 @EnableIntegration
 public class IntegrationConfig {
-
-    @Bean
-    public ConvertEquService getConvertEquService(){
-        return new ConvertEquService();
-    }
 
 
     @Bean
@@ -51,7 +45,6 @@ public class IntegrationConfig {
     @Bean
     public IntegrationFlow pollingFlow() {
         return IntegrationFlows.from(jdbcMessageSource(), c -> c.poller(Pollers.fixedRate(10000).maxMessagesPerPoll(1)))
-                .transform(Transformers.toJson())
                 .channel("equ-channel-input")
                 .get();
     }
@@ -79,8 +72,8 @@ public class IntegrationConfig {
      * @return
      */
     @ServiceActivator(inputChannel = "equ-channel-input", outputChannel = "equ-channel-output")
-    public Message<Object> getDbData(Message<Object> msg) {
-        return getConvertEquService().convert(msg);
+    public Message<List<Object>> getDbData(Message<List<Object>> msg) {
+        return new ConvertEquService().getSource(msg).convert();
     }
 
 
