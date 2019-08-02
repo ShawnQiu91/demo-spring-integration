@@ -5,6 +5,11 @@ import org.springframework.messaging.support.GenericMessage;
 
 import java.util.List;
 
+/**
+ * 消息处理基类
+ * @param <S>
+ * @param <T>
+ */
 public abstract class BaseConvertService<S,T> {
     private List<S> payLoad;
 

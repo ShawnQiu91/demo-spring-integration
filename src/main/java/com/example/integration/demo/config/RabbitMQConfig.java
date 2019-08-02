@@ -1,5 +1,6 @@
 package com.example.integration.demo.config;
 
+import com.example.integration.demo.service.MsgConsumer;
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.FanoutExchange;
@@ -22,5 +23,14 @@ public class RabbitMQConfig {
     @Bean
     public Queue equQueue() {
         return new Queue(RabbitMQConfig.EQU_QUEUE);
+    }
+
+    /**
+     * 消息消费者
+     * @return
+     */
+    @Bean
+    public MsgConsumer msgConsumer(){
+        return new MsgConsumer();
     }
 }

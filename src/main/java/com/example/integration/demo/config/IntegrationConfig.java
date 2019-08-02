@@ -30,6 +30,14 @@ public class IntegrationConfig {
         return DataSourceBuilder.create().build();
     }
 
+
+    /**
+     * 将HES系统的数据从数据库中抓取，处理完成后发送到指定的消息队列，云平台从消息队列中消费数据
+     */
+    /**
+     * 从数据源抓取设备信息
+      * @return
+     */
     @Bean
     public MessageSource<Object> jdbcMessageSource() {
         return new JdbcPollingChannelAdapter(getMyDataSource(), "SELECT * FROM equipment");
@@ -48,7 +56,6 @@ public class IntegrationConfig {
                 .channel("equ-channel-input")
                 .get();
     }
-
 
     /**
      * java DSL配置
